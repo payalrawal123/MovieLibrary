@@ -56,6 +56,19 @@ function App() {
           </div>
         </div>
       </div>
+      <div className="favorites">
+        <h2>Favorites</h2>
+        <div className="movies">
+          {favorites.map((movie) => (
+            <div className="movie-card" key={movie.imdbID}>
+              <img src={movie.Poster} alt={movie.Title} />
+              <h3>{movie.Title}</h3>
+              <p>Year: {movie.Year}</p>
+              <button onClick={() => removeFromFavorites(movie)}>
+                Remove from Favorites
+              </button>
+            </div>
+          ))}
     </>
   );
 }
