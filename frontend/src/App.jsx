@@ -1,59 +1,81 @@
-
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
-import { useEffect, useState } from "react";
+const API_KEY = "your_omdb_api_key"; // Replace with your OMDb API key
 
 function App() {
-  const [searchterm, setsearchterm] = useState("");
-  const [movie, setMovie] = useState([]);
-  const [fav, setFav] = useState(() => {
-    return JSON.parse(localStorage.getItem("favorite") || "[]");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [favorites, setFavorites] = useState(() => {
+    return JSON.parse(localStorage.getItem("favorites")) || [];
   });
 
-  const fetchMovie = async () => {
-    if (searchterm.trim() === "") return; // Prevent API call with an empty search term
-    try {
-      let res = await fetch(
-        `https://www.omdbapi.com/?s=${searchterm}&apikey=bd65d91`
-      );
-      let data = await res.json();
-      setMovie(data.Search || []); // Handle cases where Search might be undefined
-    } catch (error) {
-      console.log(error);
+  // Fetch movies from OMDb API
+  const fetchMovies = async () => {
+    if (searchTerm.trim() === "") return;
+    const response = await fetch(
+      `https://www.omdbapi.com/?apikey=${API_KEY}&s=${searchTerm}`
+    );
+    const data = await response.json();
+    if (data.Search) {
+      setMovies(data.Search);
+    } else {
+      setMovies([]);
     }
   };
 
-  const addFav = (movie) => {
-    const updatedFavorites = [...fav, movie];
-    setFav(updatedFavorites);
-    localStorage.setItem("favorite", JSON.stringify(updatedFavorites));
+  // Add movie to favorites
+  const addToFavorites = (movie) => {
+    const updatedFavorites = [...favorites, movie];
+    setFavorites(updatedFavorites);
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+  };
+
+  // Remove movie from favorites
+  const removeFromFavorites = (movie) => {
+    const updatedFavorites = favorites.filter(
+      (fav) => fav.imdbID !== movie.imdbID
+    );
+    setFavorites(updatedFavorites);
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+  };
+
+  // Check if movie is a favorite
+  const isFavorite = (movie) => {
+    return favorites.some((fav) => fav.imdbID === movie.imdbID);
   };
 
   return (
-    <>
-      <div className="app">
-        <div className="search-bar">
-          <h1>Movie Library</h1>
-          <input
-            type="text"
-            placeholder="Search Movies"
-            value={searchterm}
-            onChange={(e) => setsearchterm(e.target.value)}
-          />
-          <button onClick={fetchMovie}>Search</button>
-        </div>
-
-        <div className="movie-list">
-          <div className="movies">
-            {movie.map((items) => (
-              <div className="movie-card" key={items.imdbID}>
-                <img src={items.Poster} alt={items.Title} />
-                <h3>{items.Title}</h3>
-                <p>Year: {items.Year}</p>
-                <button onClick={() => addFav(items)}>Add To Favorite</button>
-              </div>
-            ))}
-          </div>
+    <div className="app">
+      <h1>Movie Library</h1>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search for movies..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button onClick={fetchMovies}>Search</button>
+      </div>
+      <div className="movie-list">
+        <h2>Search Results</h2>
+        <div className="movies">
+          {movies.map((movie) => (
+            <div className="movie-card" key={movie.imdbID}>
+              <img src={movie.Poster} alt={movie.Title} />
+              <h3>{movie.Title}</h3>
+              <p>Year: {movie.Year}</p>
+              {isFavorite(movie) ? (
+                <button onClick={() => removeFromFavorites(movie)}>
+                  Remove from Favorites
+                </button>
+              ) : (
+                <button onClick={() => addToFavorites(movie)}>
+                  Add to Favorites
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
       <div className="favorites">
@@ -69,7 +91,9 @@ function App() {
               </button>
             </div>
           ))}
-    </>
+        </div>
+      </div>
+    </div>
   );
 }
 
