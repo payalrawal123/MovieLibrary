@@ -1,12 +1,14 @@
-import { Link, Route, Routes } from "react-router-dom";
+
 import "./App.css";
-import Home from "./pages/Home";
-import Favriote from "./pages/favriote";
+
 import { useEffect, useState } from "react";
 
 function App() {
   const [searchterm, setsearchterm] = useState("");
   const [movie, setMovie] = useState([]);
+  const [fav, setFav] = useState(() => {
+    return JSON.parse(localStorage.getItem("favorite") || "[]");
+  });
 
   const fetchMovie = async () => {
     if (searchterm.trim() === "") return; // Prevent API call with an empty search term
@@ -19,6 +21,12 @@ function App() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const addFav = (movie) => {
+    const updatedFavorites = [...fav, movie];
+    setFav(updatedFavorites);
+    localStorage.setItem("favorite", JSON.stringify(updatedFavorites));
   };
 
   return (
@@ -42,7 +50,7 @@ function App() {
                 <img src={items.Poster} alt={items.Title} />
                 <h3>{items.Title}</h3>
                 <p>Year: {items.Year}</p>
-                <button>Add To Favriote</button>
+                <button onClick={() => addFav(items)}>Add To Favorite</button>
               </div>
             ))}
           </div>
