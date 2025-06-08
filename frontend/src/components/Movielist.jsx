@@ -29,6 +29,9 @@ const Movielist = () => {
              <img src={item.Poster} alt={`${item.Title} Poster`} /> {/* Use item.Poster for the image */}
            </div>
          ))}
+          <div className='row'>
+                <MovieList movies={movies} favouriteComponent={AddFavourites} />
+            </div>
        </div>
      </>
    )
