@@ -4,10 +4,10 @@ let url = 'https://www.omdbapi.com/?s=kabhi&apikey=bd65d91';
 
 const Movielist = () => {
   const [movie, setMovie] = useState([]);
- 
+ const [favourites, setFavourites] = useState([]);
    useEffect(() => {
      fetchMovie();
-   }, []);
+     
  
    const fetchMovie = async () => {
      try {
@@ -19,7 +19,10 @@ const Movielist = () => {
        console.log(error);
      }
    };
- 
+ const addFavouriteMovie = (movie) => {
+        const newFavouriteList = [...favourites, movie];
+        setFavourites(newFavouriteList);
+    };
    return (
      <>
        <div>
@@ -30,7 +33,9 @@ const Movielist = () => {
            </div>
          ))}
           <div className='row'>
-                <MovieList movies={movies} favouriteComponent={AddFavourites} />
+                <MovieList  movies={movies}
+                    favouriteComponent={AddFavourites}
+                    handleFavouritesClick={addFavouriteMovie} />
             </div>
        </div>
      </>
